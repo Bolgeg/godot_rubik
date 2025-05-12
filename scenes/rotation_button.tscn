@@ -1,0 +1,56 @@
+[gd_scene load_steps=5 format=3 uid="uid://bhnqnk5xbk7ag"]
+
+[ext_resource type="Script" uid="uid://dtjyds8erd1wl" path="res://scripts/rotation_button.gd" id="1_sdu60"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xxgi5"]
+resource_local_to_scene = true
+bg_color = Color(1, 1, 1, 0.752941)
+corner_radius_top_left = 32
+corner_radius_top_right = 32
+corner_radius_bottom_right = 32
+corner_radius_bottom_left = 32
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8w1jk"]
+resource_local_to_scene = true
+bg_color = Color(0.920995, 0.920995, 0.920995, 0.501961)
+corner_radius_top_left = 32
+corner_radius_top_right = 32
+corner_radius_bottom_right = 32
+corner_radius_bottom_left = 32
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_77bhk"]
+resource_local_to_scene = true
+bg_color = Color(1, 1, 1, 0.501961)
+corner_radius_top_left = 32
+corner_radius_top_right = 32
+corner_radius_bottom_right = 32
+corner_radius_bottom_left = 32
+
+[node name="RotationButton" type="Control"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(32, 32)
+script = ExtResource("1_sdu60")
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+theme_override_styles/hover = SubResource("StyleBoxFlat_xxgi5")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_8w1jk")
+theme_override_styles/normal = SubResource("StyleBoxFlat_77bhk")
+action_mode = 0
+button_mask = 3
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

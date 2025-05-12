@@ -1,5 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://cyfa27twph6dq"]
+[gd_scene load_steps=5 format=3 uid="uid://cyfa27twph6dq"]
 
+[ext_resource type="Script" uid="uid://cck6pb6qb4fuc" path="res://scripts/game.gd" id="1_lnu2h"]
 [ext_resource type="PackedScene" uid="uid://ddymmikb3a5el" path="res://scenes/cube.tscn" id="1_uwrxv"]
 [ext_resource type="Script" uid="uid://bqj4gldp170h3" path="res://scripts/camera_3d.gd" id="2_yqjtg"]
 
@@ -11,10 +12,12 @@ ambient_light_color = Color(1, 1, 1, 1)
 reflected_light_source = 1
 
 [node name="Game" type="Node3D"]
+script = ExtResource("1_lnu2h")
 
 [node name="Cube" parent="." instance=ExtResource("1_uwrxv")]
 
 [node name="Camera3D" type="Camera3D" parent="."]
+unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2)
 script = ExtResource("2_yqjtg")
 
@@ -26,3 +29,12 @@ transform = Transform3D(0.866025, 0.433013, -0.25, 0, 0.5, 0.866025, 0.5, -0.75,
 light_energy = 0.5
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="RotationButtons" type="Control" parent="CanvasLayer"]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

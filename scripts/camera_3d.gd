@@ -6,7 +6,7 @@ var angles:=Vector2(0,0)
 
 var mouse_movement:=Vector2(0,0)
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		mouse_movement+=event.relative
 
@@ -18,6 +18,10 @@ func _process(_delta: float) -> void:
 			-project_position(Vector2(0,0),surface_distance)
 			).length()
 		angles+=mouse_movement*radians_per_pixel
+		if angles.y<-PI/2:
+			angles.y=-PI/2
+		elif angles.y>PI/2:
+			angles.y=PI/2
 	mouse_movement=Vector2(0,0)
 	
 	rotation.z=0
