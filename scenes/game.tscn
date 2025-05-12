@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3 uid="uid://cyfa27twph6dq"]
+
+[ext_resource type="PackedScene" uid="uid://ddymmikb3a5el" path="res://scenes/cube.tscn" id="1_uwrxv"]
+[ext_resource type="Script" uid="uid://bqj4gldp170h3" path="res://scripts/camera_3d.gd" id="2_yqjtg"]
+
+[sub_resource type="Environment" id="Environment_uwrxv"]
+background_mode = 1
+background_color = Color(0.458824, 0.760784, 1, 1)
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+reflected_light_source = 1
+
+[node name="Game" type="Node3D"]
+
+[node name="Cube" parent="." instance=ExtResource("1_uwrxv")]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2)
+script = ExtResource("2_yqjtg")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_uwrxv")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, 0.433013, -0.25, 0, 0.5, 0.866025, 0.5, -0.75, 0.433013, 0, 2, 0)
+light_energy = 0.5
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
