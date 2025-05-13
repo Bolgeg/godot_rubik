@@ -1,0 +1,86 @@
+[gd_scene load_steps=14 format=3 uid="uid://crol2i3rx43ip"]
+
+[ext_resource type="Script" uid="uid://dodlrcbc8jw1m" path="res://scripts/cube_cube.gd" id="1_pxvwm"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_clkgk"]
+resource_local_to_scene = true
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_pxvwm"]
+resource_local_to_scene = true
+lightmap_size_hint = Vector2i(12, 12)
+material = SubResource("StandardMaterial3D_clkgk")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pxvwm"]
+resource_local_to_scene = true
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_10lkr"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_pxvwm")
+flip_faces = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_10lkr"]
+resource_local_to_scene = true
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_pijxu"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_10lkr")
+orientation = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pijxu"]
+resource_local_to_scene = true
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_se0jo"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_pijxu")
+flip_faces = true
+orientation = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_se0jo"]
+resource_local_to_scene = true
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_88li3"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_se0jo")
+orientation = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_88li3"]
+resource_local_to_scene = true
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_u74q4"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_88li3")
+flip_faces = true
+orientation = 0
+
+[node name="CubeCube" type="Node3D"]
+script = ExtResource("1_pxvwm")
+
+[node name="Top" type="MeshInstance3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("PlaneMesh_pxvwm")
+
+[node name="Bottom" type="MeshInstance3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+mesh = SubResource("PlaneMesh_10lkr")
+
+[node name="Front" type="MeshInstance3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1)
+mesh = SubResource("PlaneMesh_pijxu")
+
+[node name="Back" type="MeshInstance3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
+mesh = SubResource("PlaneMesh_se0jo")
+
+[node name="Left" type="MeshInstance3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
+mesh = SubResource("PlaneMesh_88li3")
+
+[node name="Right" type="MeshInstance3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 0)
+mesh = SubResource("PlaneMesh_u74q4")
