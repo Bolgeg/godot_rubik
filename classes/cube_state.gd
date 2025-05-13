@@ -39,5 +39,31 @@ func _init(cube_size:int) -> void:
 					else:
 						colors[z][y][x][o]=o
 
+func duplicate()->CubeState:
+	var cube_state=new(size)
+	cube_state.colors=colors.duplicate(true)
+	return cube_state
+
 func get_colors_at(location:Vector3)->Dictionary:
 	return colors[location.z][location.y][location.x]
+
+func get_colors_copy_rotated(origin:Vector3,rotation_axis:Vector3,clockwise:bool)->Dictionary:
+	var original:=get_colors_at(origin)
+	var copy:={}
+	for o:Vector3 in ORIENTATIONS:
+		var i=o.rotated(rotation_axis,PI/2 if clockwise else -PI/2).round()
+		copy[o]=original[i]
+	return copy
+
+func rotated(rotation_axis:Vector3,clockwise:bool)->CubeState:
+	var cube_state=self.duplicate()
+	for z in range(size):
+		for y in range(size):
+			for x in range(size):
+				var pdir:Vector3=Vector3(x,y,z)+rotation_axis
+				if not(pdir.x>=0 and pdir.y>=0 and pdir.z>=0 and pdir.x<size and pdir.y<size and pdir.z<size):
+					var to:=Vector3(x,y,z)+Vector3(0.5,0.5,0.5)-Vector3(size,size,size)/2
+					var from:=to.rotated(rotation_axis,PI/2 if clockwise else -PI/2)
+					var origin:=(from+Vector3(size,size,size)/2-Vector3(0.5,0.5,0.5)).round()
+					cube_state.colors[z][y][x]=get_colors_copy_rotated(origin,rotation_axis,clockwise)
+	return cube_state
