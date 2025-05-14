@@ -44,11 +44,22 @@ func duplicate()->CubeState:
 	cube_state.colors=colors.duplicate(true)
 	return cube_state
 
-func get_colors_at(location:Vector3)->Dictionary:
-	return colors[location.z][location.y][location.x]
+func is_solved()->bool:
+	var solved_cube=new(size)
+	for z in range(size):
+		for y in range(size):
+			for x in range(size):
+				for o in ORIENTATIONS:
+					if colors[z][y][x][o]!=solved_cube.colors[z][y][x][o]:
+						return false
+	return true
 
-func get_colors_copy_rotated(origin:Vector3,rotation_axis:Vector3,clockwise:bool)->Dictionary:
-	var original:=get_colors_at(origin)
+func get_colors_at(position:Vector3)->Dictionary:
+	var p=position+get_center_offset()
+	return colors[p.z][p.y][p.x]
+
+func _get_colors_copy_rotated(origin:Vector3,rotation_axis:Vector3,clockwise:bool)->Dictionary:
+	var original:=get_colors_at(origin-get_center_offset())
 	var copy:={}
 	for o:Vector3 in ORIENTATIONS:
 		var i=o.rotated(rotation_axis,PI/2 if clockwise else -PI/2).round()
@@ -62,8 +73,39 @@ func rotated(rotation_axis:Vector3,clockwise:bool)->CubeState:
 			for x in range(size):
 				var pdir:Vector3=Vector3(x,y,z)+rotation_axis
 				if not(pdir.x>=0 and pdir.y>=0 and pdir.z>=0 and pdir.x<size and pdir.y<size and pdir.z<size):
-					var to:=Vector3(x,y,z)+Vector3(0.5,0.5,0.5)-Vector3(size,size,size)/2
+					var to:=Vector3(x,y,z)-get_center_offset()
 					var from:=to.rotated(rotation_axis,PI/2 if clockwise else -PI/2)
-					var origin:=(from+Vector3(size,size,size)/2-Vector3(0.5,0.5,0.5)).round()
-					cube_state.colors[z][y][x]=get_colors_copy_rotated(origin,rotation_axis,clockwise)
+					var origin:=(from+get_center_offset()).round()
+					cube_state.colors[z][y][x]=_get_colors_copy_rotated(origin,rotation_axis,clockwise)
 	return cube_state
+
+func get_center_offset()->Vector3:
+	return Vector3(size,size,size)/2-Vector3(0.5,0.5,0.5)
+
+func get_position_rotated(position:Vector3,clockwise_times:int)->Vector3:
+	return position.rotated(Vector3.MODEL_TOP,clockwise_times*-PI/2).round()
+
+func get_colors_list(c:Dictionary)->Array:
+	var list:=[]
+	for o in c:
+		if c[o]!=Vector3(0,0,0):
+			list.append(c[o])
+	return list
+
+func colors_match(c1:Dictionary,c2:Dictionary)->bool:
+	var l1:=get_colors_list(c1)
+	var l2:=get_colors_list(c2)
+	if l1.size()!=l2.size():
+		return false
+	for i in l1:
+		if not i in l2:
+			return false
+	return true
+
+func find_position_of(c:Dictionary)->Vector3:
+	for z in range(size):
+		for y in range(size):
+			for x in range(size):
+				if colors_match(c,get_colors_at(Vector3(x,y,z)-get_center_offset())):
+					return Vector3(x,y,z)-get_center_offset()
+	return -get_center_offset()

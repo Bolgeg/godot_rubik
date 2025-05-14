@@ -4,6 +4,7 @@ extends Node3D
 @onready var cube:Node3D=%Cube
 @onready var rotation_buttons:Control=%RotationButtons
 @onready var rotation_timer:Timer=%RotationTimer
+@onready var solving_control_buttons:HBoxContainer=%SolvingControlButtons
 
 var cube_size:=3
 
@@ -12,7 +13,14 @@ var cube_state:CubeState
 var rotation_axis:=Vector3.MODEL_TOP
 var rotation_clockwise:=true
 
+var solving:=false
+var solving_paused:=false
+
+var cube_solver:CubeSolver
+
 func _ready() -> void:
+	solving_control_buttons.visible=false
+	
 	cube_state=CubeState.new(cube_size)
 	cube.cube_size=cube_size
 	cube.build()
@@ -34,6 +42,13 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	update_rotation_button_positions()
+	
+	if solving and cube_is_solved() and rotation_timer.is_stopped():
+		stop_solving()
+	
+	if solving and not solving_paused and rotation_timer.is_stopped():
+		do_solving_step()
+	
 	var rotation_angle=0.0
 	if not rotation_timer.is_stopped():
 		rotation_angle=(1-rotation_timer.time_left/rotation_timer.wait_time)*PI/2
@@ -54,10 +69,14 @@ func perform_actual_rotation():
 func end_rotation():
 	perform_actual_rotation()
 
-func start_rotation(axis:Vector3,clockwise:bool):
+func end_rotation_if_rotating(complete_rotation:bool):
 	if not rotation_timer.is_stopped():
 		rotation_timer.stop()
-		end_rotation()
+		if complete_rotation:
+			end_rotation()
+
+func start_rotation(axis:Vector3,clockwise:bool):
+	end_rotation_if_rotating(true)
 	rotation_timer.start()
 	rotation_axis=axis
 	rotation_clockwise=clockwise
@@ -67,3 +86,78 @@ func _on_rotation_button_pressed(button_axis:Vector3):
 
 func _on_rotation_timer_timeout() -> void:
 	end_rotation()
+
+func scramble_cube():
+	cube_state=CubeState.new(cube_size)
+	for iteration in range(32):
+		var axis=CubeState.ORIENTATIONS[randi_range(0,5)]
+		var clockwise=true if randi_range(0,1)==1 else false
+		cube_state=cube_state.rotated(axis,clockwise)
+
+func _on_scramble_button_pressed() -> void:
+	if not solving:
+		end_rotation_if_rotating(true)
+		scramble_cube()
+
+func _on_reset_button_pressed() -> void:
+	if not solving:
+		end_rotation_if_rotating(true)
+		cube_state=CubeState.new(cube_size)
+
+func cube_is_solved()->bool:
+	return cube_state.is_solved()
+
+func do_solving_step():
+	var step_rotation=cube_solver.next_step(cube_state)
+	if step_rotation.perform:
+		rotation_axis=step_rotation.axis
+		rotation_clockwise=step_rotation.clockwise
+		rotation_timer.start()
+
+func start_solving():
+	solving=true
+	
+	rotation_buttons.visible=false
+	solving_control_buttons.visible=true
+	
+	solving_paused=false
+	
+	cube_solver=CubeSolver.new()
+
+func stop_solving():
+	solving=false
+	
+	rotation_buttons.visible=true
+	solving_control_buttons.visible=false
+
+func solving_pause():
+	if not solving_paused:
+		solving_paused=true
+
+func solving_unpause():
+	if solving_paused:
+		solving_paused=false
+
+func _on_solve_button_pressed() -> void:
+	if not solving:
+		end_rotation_if_rotating(true)
+		start_solving()
+
+func _on_stop_button_pressed() -> void:
+	if solving:
+		end_rotation_if_rotating(false)
+		stop_solving()
+
+func _on_pause_button_pressed() -> void:
+	if solving:
+		end_rotation_if_rotating(false)
+		if solving_paused:
+			solving_unpause()
+		else:
+			solving_pause()
+
+func _on_next_step_button_pressed() -> void:
+	if solving:
+		end_rotation_if_rotating(solving_paused)
+		solving_pause()
+		do_solving_step()

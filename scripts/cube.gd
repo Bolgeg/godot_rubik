@@ -25,7 +25,7 @@ func update(cube_state:CubeState,rotation_axis:Vector3,rotation_angle:float):
 			)*cube_cube_size
 		cube.rotation=Vector3(0,0,0)
 		cube.scale=Vector3(cube_cube_size,cube_cube_size,cube_cube_size)/2*0.95
-		var colors=cube_state.get_colors_at(cube.location)
+		var colors=cube_state.get_colors_at(cube.location-cube_state.get_center_offset())
 		for face:Vector3 in colors:
 			cube.set_color(face,CubeState.ORIENTATION_COLORS[colors[face]])
 		if rotation_angle!=0:
