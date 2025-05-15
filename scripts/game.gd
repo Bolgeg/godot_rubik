@@ -69,14 +69,13 @@ func perform_actual_rotation():
 func end_rotation():
 	perform_actual_rotation()
 
-func end_rotation_if_rotating(complete_rotation:bool):
+func end_rotation_if_rotating():
 	if not rotation_timer.is_stopped():
 		rotation_timer.stop()
-		if complete_rotation:
-			end_rotation()
+		end_rotation()
 
 func start_rotation(axis:Vector3,clockwise:bool):
-	end_rotation_if_rotating(true)
+	end_rotation_if_rotating()
 	rotation_timer.start()
 	rotation_axis=axis
 	rotation_clockwise=clockwise
@@ -96,12 +95,12 @@ func scramble_cube():
 
 func _on_scramble_button_pressed() -> void:
 	if not solving:
-		end_rotation_if_rotating(true)
+		end_rotation_if_rotating()
 		scramble_cube()
 
 func _on_reset_button_pressed() -> void:
 	if not solving:
-		end_rotation_if_rotating(true)
+		end_rotation_if_rotating()
 		cube_state=CubeState.new(cube_size)
 
 func cube_is_solved()->bool:
@@ -140,17 +139,17 @@ func solving_unpause():
 
 func _on_solve_button_pressed() -> void:
 	if not solving:
-		end_rotation_if_rotating(true)
+		end_rotation_if_rotating()
 		start_solving()
 
 func _on_stop_button_pressed() -> void:
 	if solving:
-		end_rotation_if_rotating(false)
+		end_rotation_if_rotating()
 		stop_solving()
 
 func _on_pause_button_pressed() -> void:
 	if solving:
-		end_rotation_if_rotating(false)
+		end_rotation_if_rotating()
 		if solving_paused:
 			solving_unpause()
 		else:
@@ -158,6 +157,6 @@ func _on_pause_button_pressed() -> void:
 
 func _on_next_step_button_pressed() -> void:
 	if solving:
-		end_rotation_if_rotating(solving_paused)
+		end_rotation_if_rotating()
 		solving_pause()
 		do_solving_step()

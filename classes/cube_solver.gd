@@ -93,6 +93,73 @@ func move_bottom_to_side_flipped(cube_state:CubeState,face:Vector3)->CubeState:
 	})
 	return cube_state
 
+func complete_bottom_cross_step(cube_state:CubeState,face:Vector3)->CubeState:
+	var side_face=face.rotated(Vector3.MODEL_TOP,-PI/2).round()
+	cube_state=add_step(cube_state,{
+		"axis":face,
+		"clockwise":true,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":side_face,
+		"clockwise":true,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":Vector3.MODEL_BOTTOM,
+		"clockwise":true,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":side_face,
+		"clockwise":false,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":Vector3.MODEL_BOTTOM,
+		"clockwise":false,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":face,
+		"clockwise":false,
+	})
+	return cube_state
+
+func swap_bottom_cross_edges(cube_state:CubeState,face:Vector3)->CubeState:
+	cube_state=add_step(cube_state,{
+		"axis":face,
+		"clockwise":true,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":Vector3.MODEL_BOTTOM,
+		"clockwise":true,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":face,
+		"clockwise":false,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":Vector3.MODEL_BOTTOM,
+		"clockwise":true,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":face,
+		"clockwise":true,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":Vector3.MODEL_BOTTOM,
+		"clockwise":true,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":Vector3.MODEL_BOTTOM,
+		"clockwise":true,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":face,
+		"clockwise":false,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":Vector3.MODEL_BOTTOM,
+		"clockwise":true,
+	})
+	return cube_state
+
 func fill_next_steps(cube_state:CubeState):
 	var solved_cube:=CubeState.new(cube_state.size)
 	
@@ -272,6 +339,72 @@ func fill_next_steps(cube_state:CubeState):
 				cube_state=move_bottom_to_side_flipped(cube_state,target_face)
 			
 			return
+	
+	var bottom_cross_sides:=[]
+	for i in range(4):
+		var position=cube_state.get_position_rotated(
+			Vector3.MODEL_FRONT+Vector3.MODEL_BOTTOM,i
+			)
+		if cube_state.get_colors_at(position)[Vector3.MODEL_BOTTOM]==Vector3.MODEL_BOTTOM:
+			bottom_cross_sides.append(true)
+		else:
+			bottom_cross_sides.append(false)
+	
+	var bottom_cross_complete:=true
+	var bottom_cross_empty:=true
+	for side in bottom_cross_sides:
+		if side:
+			bottom_cross_empty=false
+		else:
+			bottom_cross_complete=false
+	if not bottom_cross_complete:
+		if bottom_cross_empty:
+			cube_state=complete_bottom_cross_step(cube_state,Vector3.MODEL_FRONT)
+			return
+		else:
+			var index:=0
+			while true:
+				var next_index=(index+1)%4
+				if bottom_cross_sides[index] and not bottom_cross_sides[next_index]:
+					break
+				index=next_index
+			var face=Vector3.MODEL_FRONT.rotated(Vector3.MODEL_TOP,(index+1)*-PI/2).round()
+			cube_state=complete_bottom_cross_step(cube_state,face)
+			return
+	
+	while true:
+		var bottom_cross_edges:=[]
+		var bottom_cross_edge_count:=0
+		for i in range(4):
+			var position=cube_state.get_position_rotated(
+				Vector3.MODEL_FRONT+Vector3.MODEL_BOTTOM,i
+				)
+			if compare_cube_position_equal(cube_state,solved_cube,position):
+				bottom_cross_edges.append(true)
+				bottom_cross_edge_count+=1
+			else:
+				bottom_cross_edges.append(false)
+		if bottom_cross_edge_count==4:
+			break
+		elif bottom_cross_edge_count==2:
+			if bottom_cross_edges[0]==bottom_cross_edges[2]:
+				cube_state=swap_bottom_cross_edges(cube_state,Vector3.MODEL_FRONT)
+				return
+			else:
+				var index:=0
+				while true:
+					var next_index=(index+1)%4
+					if bottom_cross_edges[index] and bottom_cross_edges[next_index]:
+						break
+					index=next_index
+				var face=Vector3.MODEL_FRONT.rotated(Vector3.MODEL_TOP,index*-PI/2).round()
+				cube_state=swap_bottom_cross_edges(cube_state,face)
+				return
+		else:
+			cube_state=add_step(cube_state,{
+					"axis":Vector3.MODEL_BOTTOM,
+					"clockwise":false,
+				})
 	
 	
 
