@@ -7,6 +7,10 @@ func compare_cube_position_equal(cube_state:CubeState,solved_cube:CubeState,
 	position:Vector3)->bool:
 	return cube_state.get_colors_at(position)==solved_cube.get_colors_at(position)
 
+func compare_cube_position_match_colors_no_order(cube_state:CubeState,solved_cube:CubeState,
+	position:Vector3)->bool:
+	return CubeState.colors_match(cube_state.get_colors_at(position),solved_cube.get_colors_at(position))
+
 func get_position_side_face(position:Vector3)->Vector3:
 	position.y=0
 	if position.x!=0 and position.z!=0:
@@ -158,6 +162,64 @@ func swap_bottom_cross_edges(cube_state:CubeState,face:Vector3)->CubeState:
 		"axis":Vector3.MODEL_BOTTOM,
 		"clockwise":true,
 	})
+	return cube_state
+
+func shift_bottom_corners(cube_state:CubeState,face:Vector3)->CubeState:
+	var side_face=face.rotated(Vector3.MODEL_TOP,-PI/2).round()
+	var side_face_b=face.rotated(Vector3.MODEL_TOP,PI/2).round()
+	cube_state=add_step(cube_state,{
+		"axis":Vector3.MODEL_BOTTOM,
+		"clockwise":true,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":side_face,
+		"clockwise":true,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":Vector3.MODEL_BOTTOM,
+		"clockwise":false,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":side_face_b,
+		"clockwise":false,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":Vector3.MODEL_BOTTOM,
+		"clockwise":true,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":side_face,
+		"clockwise":false,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":Vector3.MODEL_BOTTOM,
+		"clockwise":false,
+	})
+	cube_state=add_step(cube_state,{
+		"axis":side_face_b,
+		"clockwise":true,
+	})
+	return cube_state
+
+func rotate_bottom_corner(cube_state:CubeState,face:Vector3)->CubeState:
+	var side_face=face.rotated(Vector3.MODEL_TOP,-PI/2).round()
+	for i in range(2):
+		cube_state=add_step(cube_state,{
+			"axis":side_face,
+			"clockwise":false,
+		})
+		cube_state=add_step(cube_state,{
+			"axis":Vector3.MODEL_TOP,
+			"clockwise":true,
+		})
+		cube_state=add_step(cube_state,{
+			"axis":side_face,
+			"clockwise":true,
+		})
+		cube_state=add_step(cube_state,{
+			"axis":Vector3.MODEL_TOP,
+			"clockwise":false,
+		})
 	return cube_state
 
 func fill_next_steps(cube_state:CubeState):
@@ -402,11 +464,64 @@ func fill_next_steps(cube_state:CubeState):
 				return
 		else:
 			cube_state=add_step(cube_state,{
-					"axis":Vector3.MODEL_BOTTOM,
-					"clockwise":false,
-				})
+				"axis":Vector3.MODEL_BOTTOM,
+				"clockwise":false,
+			})
 	
+	var bottom_corner_count:=0
+	for i in range(4):
+		var position=cube_state.get_position_rotated(
+			Vector3.MODEL_FRONT+Vector3.MODEL_BOTTOM+Vector3.MODEL_RIGHT,i
+			)
+		if compare_cube_position_match_colors_no_order(cube_state,solved_cube,position):
+			bottom_corner_count+=1
 	
+	if bottom_corner_count!=4:
+		if bottom_corner_count==0:
+			cube_state=shift_bottom_corners(cube_state,Vector3.MODEL_FRONT)
+			return
+		else:
+			for i in range(4):
+				var position=cube_state.get_position_rotated(
+					Vector3.MODEL_FRONT+Vector3.MODEL_BOTTOM+Vector3.MODEL_RIGHT,i
+					)
+				if compare_cube_position_match_colors_no_order(cube_state,solved_cube,position):
+					cube_state=shift_bottom_corners(
+						cube_state,Vector3.MODEL_FRONT.rotated(Vector3.MODEL_TOP,-i*PI/2).round()
+						)
+					return
+	
+	var corner_to_rotate:=[]
+	for i in range(4):
+		var position=cube_state.get_position_rotated(
+			Vector3.MODEL_FRONT+Vector3.MODEL_BOTTOM+Vector3.MODEL_RIGHT,i
+			)
+		var face=Vector3.MODEL_FRONT.rotated(Vector3.MODEL_TOP,-i*PI/2).round()
+		if not compare_cube_position_equal(cube_state,solved_cube,position):
+			if cube_state.get_colors_at(position)[face]==Vector3.MODEL_BOTTOM:
+				corner_to_rotate.append(1)
+			else:
+				corner_to_rotate.append(2)
+		else:
+			corner_to_rotate.append(0)
+	
+	var rotations:=0
+	for i in range(4):
+		if corner_to_rotate[i]==0:
+			continue
+		while i>rotations:
+			cube_state=add_step(cube_state,{
+				"axis":Vector3.MODEL_BOTTOM,
+				"clockwise":true,
+			})
+			rotations+=1
+		for j in range(corner_to_rotate[i]):
+			cube_state=rotate_bottom_corner(cube_state,Vector3.MODEL_FRONT)
+	for i in range(rotations):
+		cube_state=add_step(cube_state,{
+				"axis":Vector3.MODEL_BOTTOM,
+				"clockwise":false,
+			})
 
 func next_step(cube_state:CubeState)->Dictionary:
 	var output:={

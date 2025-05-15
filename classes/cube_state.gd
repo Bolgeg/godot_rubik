@@ -85,14 +85,14 @@ func get_center_offset()->Vector3:
 func get_position_rotated(position:Vector3,clockwise_times:int)->Vector3:
 	return position.rotated(Vector3.MODEL_TOP,clockwise_times*-PI/2).round()
 
-func get_colors_list(c:Dictionary)->Array:
+static func get_colors_list(c:Dictionary)->Array:
 	var list:=[]
 	for o in c:
 		if c[o]!=Vector3(0,0,0):
 			list.append(c[o])
 	return list
 
-func colors_match(c1:Dictionary,c2:Dictionary)->bool:
+static func colors_match(c1:Dictionary,c2:Dictionary)->bool:
 	var l1:=get_colors_list(c1)
 	var l2:=get_colors_list(c2)
 	if l1.size()!=l2.size():
